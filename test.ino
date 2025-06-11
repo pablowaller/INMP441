@@ -1,6 +1,5 @@
 #include <driver/i2s.h>
 
-// Pines del INMP441 conectados al ESP32
 #define I2S_WS  25  // Word select (L/R CLK)
 #define I2S_SD  33  // Serial data
 #define I2S_SCK 26  // Serial clock (BCLK)
@@ -8,12 +7,11 @@
 void setup() {
   Serial.begin(115200);
 
-  // Configuración del periférico I2S
   i2s_config_t i2s_config = {
     .mode = (i2s_mode_t)(I2S_MODE_MASTER | I2S_MODE_RX),
     .sample_rate = 16000,
     .bits_per_sample = I2S_BITS_PER_SAMPLE_32BIT,
-    .channel_format = I2S_CHANNEL_FMT_ONLY_LEFT, // Usá ONLY_RIGHT si L/R está a 3.3V
+    .channel_format = I2S_CHANNEL_FMT_ONLY_LEFT,
     .communication_format = I2S_COMM_FORMAT_I2S_MSB,
     .intr_alloc_flags = 0,
     .dma_buf_count = 8,
@@ -23,7 +21,6 @@ void setup() {
     .fixed_mclk = 0
   };
 
-  // Pines físicos del I2S
   i2s_pin_config_t pin_config = {
     .bck_io_num = I2S_SCK,
     .ws_io_num = I2S_WS,
@@ -31,7 +28,6 @@ void setup() {
     .data_in_num = I2S_SD
   };
 
-  // Inicializa el driver I2S
   i2s_driver_install(I2S_NUM_0, &i2s_config, 0, NULL);
   i2s_set_pin(I2S_NUM_0, &pin_config);
 }
@@ -40,23 +36,20 @@ void loop() {
   int32_t buffer[64];
   size_t bytes_read;
 
-  // Leer del micrófono (bloqueante hasta que haya datos)
   i2s_read(I2S_NUM_0, &buffer, sizeof(buffer), &bytes_read, portMAX_DELAY);
 
   int64_t sum = 0;
   int32_t max_sample = 0;
 
   for (int i = 0; i < 64; i++) {
-    // Ajustar alineación del dato a 24 bits reales (los bits útiles del INMP441)
-    int32_t sample = buffer[i] >> 14; // Ajuste fino para rango sensato
+    int32_t sample = buffer[i] >> 14; 
     sum += abs(sample);
     if (abs(sample) > max_sample) max_sample = abs(sample);
   }
 
   float avg = sum / 64.0;
 
-  // Mostrar el promedio y la muestra más fuerte
   Serial.printf("Avg: %.2f | Max: %d\n", avg, max_sample);
 
-  delay(100); // Esperar un poco entre lecturas
+  delay(100); 
 }
