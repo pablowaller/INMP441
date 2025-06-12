@@ -22,7 +22,7 @@ CONFIG = {
     'baudrate': 115200,
     'timeout': 10,
     'audio_folder': 'audio',
-    'api_key': "AIzaSyDQJ-amic1aPwLp1B-XyctBgcMRd6ogYwM"
+    'api_key': "YOUR_API_KEY"
 }
 
 if not os.path.exists(CONFIG['audio_folder']):
